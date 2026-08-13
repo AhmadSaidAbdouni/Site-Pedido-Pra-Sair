@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<title>Você aceita sair comigo?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500;1,9..144,600&family=Karla:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream: #FDF6F0;
+    --blush: #F7C9CE;
+    --rose: #C97B84;
+    --peach: #F4A988;
+    --plum: #4A2E35;
+    --gold: #E8B966;
+    --radius: 20px;
+  }
+
+  *{ box-sizing: border-box; }
+
+  html, body{
+    margin:0;
+    padding:0;
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    background: radial-gradient(ellipse at top, var(--blush) 0%, var(--cream) 55%, var(--cream) 100%);
+    font-family: 'Karla', sans-serif;
+    color: var(--plum);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  #stage{
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  /* ambient floating hearts */
+  .heart{
+    position: absolute;
+    bottom: -10vh;
+    font-size: 22px;
+    color: var(--rose);
+    opacity: 0.35;
+    animation-name: float-up;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+    pointer-events: none;
+    user-select: none;
+  }
+  @keyframes float-up{
+    0%{ transform: translateY(0) rotate(0deg); opacity: 0; }
+    10%{ opacity: 0.4; }
+    90%{ opacity: 0.3; }
+    100%{ transform: translateY(-115vh) rotate(25deg); opacity: 0; }
+  }
+
+  /* ---------- SCREEN 1 ---------- */
+  .screen{
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.5s ease, filter 0.5s ease;
+  }
+
+  #screen1.hidden, #screen2.hidden{
+    opacity: 0;
+    pointer-events: none;
+    filter: blur(6px);
+  }
+
+  .card{
+    text-align: center;
+    padding: 20px;
+    max-width: 560px;
+    width: 90%;
+  }
+
+  .eyebrow{
+    font-family: 'Karla', sans-serif;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--rose);
+    margin-bottom: 14px;
+  }
+
+  h1.question{
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-style: italic;
+    font-size: clamp(34px, 7vw, 58px);
+    line-height: 1.08;
+    margin: 0 0 42px 0;
+    color: var(--plum);
+  }
+
+  .btn-row{
+    position: relative;
+    display: flex;
+    gap: 22px;
+    justify-content: center;
+    align-items: center;
+  }
+
+  button{
+    font-family: 'Karla', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    border: none;
+    border-radius: 999px;
+    cursor: pointer;
+    padding: 16px 40px;
+  }
+
+  #btn-yes{
+    background: var(--rose);
+    color: var(--cream);
+    box-shadow: 0 10px 24px rgba(201,123,132,0.4);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  #btn-yes:hover{ transform: translateY(-2px) scale(1.03); box-shadow: 0 14px 30px rgba(201,123,132,0.5); }
+  #btn-yes:focus-visible{ outline: 3px solid var(--gold); outline-offset: 3px; }
+
+  #btn-no{
+    background: transparent;
+    color: var(--rose);
+    border: 2px solid var(--rose);
+    position: relative;
+    z-index: 5;
+    transition: transform 0.14s cubic-bezier(.4,1.6,.5,1), left 0.14s cubic-bezier(.4,1.6,.5,1), top 0.14s cubic-bezier(.4,1.6,.5,1);
+    touch-action: manipulation;
+  }
+  #btn-no:focus-visible{ outline: 3px solid var(--gold); outline-offset: 3px; }
+
+  #btn-no.fleeing{
+    position: fixed;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    #btn-no{ transition: none; }
+    .heart{ animation: none; display: none; }
+  }
+
+  /* ---------- SCREEN 2 ---------- */
+  #screen2{ overflow-y: auto; padding: 40px 0; }
+  #screen2 .card{ max-width: 620px; }
+
+  .headline2{
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: clamp(28px, 5.5vw, 40px);
+    line-height: 1.15;
+    margin: 0 0 10px 0;
+  }
+
+  .sub2{
+    font-size: 16px;
+    line-height: 1.5;
+    color: var(--plum);
+    opacity: 0.85;
+    margin: 0 0 30px 0;
+  }
+
+  .venue-name{
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    color: var(--rose);
+  }
+
+  .benefits{
+    list-style: none;
+    padding: 0;
+    margin: 0 0 34px 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    text-align: left;
+  }
+  @media (max-width: 480px){
+    .benefits{ grid-template-columns: 1fr; }
+  }
+
+  .benefits li{
+    background: #fff;
+    border-radius: 14px;
+    padding: 14px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    box-shadow: 0 4px 14px rgba(74,46,53,0.06);
+  }
+  .benefits li .dot{
+    flex: none;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--gold);
+    margin-top: 5px;
+  }
+
+  .section-label{
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--rose);
+    margin-bottom: 14px;
+    text-align: left;
+  }
+
+  .dates{
+    display: flex;
+    gap: 16px;
+    margin-bottom: 30px;
+  }
+  @media (max-width: 480px){
+    .dates{ flex-direction: column; }
+  }
+
+  .ticket{
+    flex: 1;
+    position: relative;
+    background: #fff;
+    border: 2px dashed var(--blush);
+    border-radius: 16px;
+    padding: 18px 16px 20px;
+    cursor: pointer;
+    text-align: left;
+    transition: border-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+  }
+  .ticket:hover{ transform: translateY(-2px); }
+  .ticket::before, .ticket::after{
+    content: "";
+    position: absolute;
+    width: 16px; height: 16px;
+    background: var(--cream);
+    border-radius: 50%;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  .ticket::before{ left: -9px; }
+  .ticket::after{ right: -9px; }
+
+  .ticket.selected{
+    border-color: var(--rose);
+    border-style: solid;
+    box-shadow: 0 8px 22px rgba(201,123,132,0.25);
+  }
+  .ticket .day{
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 20px;
+    margin-bottom: 2px;
+  }
+  .ticket .date{
+    font-size: 13px;
+    color: var(--plum);
+    opacity: 0.7;
+  }
+  .ticket .check{
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    border: 2px solid var(--blush);
+    background: #fff;
+    transition: background 0.2s ease, border-color 0.2s ease;
+  }
+  .ticket.selected .check{
+    background: var(--rose);
+    border-color: var(--rose);
+  }
+  .ticket.selected .check::after{
+    content: "✓";
+    color: #fff;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+  }
+
+  #btn-confirm{
+    background: var(--rose);
+    color: var(--cream);
+    width: 100%;
+    box-shadow: 0 10px 24px rgba(201,123,132,0.4);
+    transition: transform 0.15s ease, opacity 0.2s ease;
+  }
+  #btn-confirm:disabled{ opacity: 0.45; cursor: not-allowed; box-shadow: none; }
+  #btn-confirm:not(:disabled):hover{ transform: translateY(-2px); }
+  #btn-confirm:focus-visible{ outline: 3px solid var(--gold); outline-offset: 3px; }
+
+  .status-msg{
+    margin-top: 16px;
+    font-size: 14px;
+    font-weight: 500;
+    min-height: 20px;
+  }
+  .status-msg.ok{ color: #5c8a5c; }
+  .status-msg.err{ color: #b3554a; }
+
+  /* confirmed state */
+  #confirmed{
+    display: none;
+    text-align: center;
+  }
+  #confirmed .headline2{ margin-bottom: 8px; }
+</style>
+</head>
+<body>
+
+<div id="stage">
+
+  <!-- ambient hearts -->
+  <div id="hearts"></div>
+
+  <!-- SCREEN 1 -->
+  <div id="screen1" class="screen">
+    <div class="card">
+      <div class="eyebrow">uma pergunta rapidinha</div>
+      <h1 class="question">Você aceita sair<br>comigo?</h1>
+      <div class="btn-row" id="btnRow">
+        <button id="btn-yes">Sim</button>
+        <button id="btn-no">Não</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 2 -->
+  <div id="screen2" class="screen hidden">
+    <div class="card">
+
+      <div id="pickStep">
+        <div class="eyebrow">uhuu 🤍</div>
+        <h2 class="headline2">Que tal a gente ir ao <span class="venue-name">Shopping Cidade Jardim</span>?</h2>
+        <p class="sub2">Pensei em um lugar tranquilo, bonito e com bastante opção — assim a gente aproveita o tempo sem correria.</p>
+
+        <ul class="benefits">
+          <li><span class="dot"></span>Média de 10 a 15 minutos de carro da sua casa</li>
+          <li><span class="dot"></span>Ambiente bonito e aconchegante, perfeito pra gente ficar à vontade e sem pressa</li>
+          <li><span class="dot"></span>Vários restaurantes, cafés e opções pra gente aproveitar a tarde juntos</li>
+          <li><span class="dot"></span>Tem coisas legais pra Kaka aproveitar também :)</li>
+        </ul>
+
+        <div class="section-label">Escolha o melhor dia pra você</div>
+        <div class="dates">
+          <div class="ticket" data-date="2026-08-15" data-label="Sábado, 15/08/2026" tabindex="0" role="button" aria-pressed="false">
+            <div class="check"></div>
+            <div class="day">Sábado</div>
+            <div class="date">15 de agosto de 2026</div>
+          </div>
+          <div class="ticket" data-date="2026-08-23" data-label="Domingo, 23/08/2026" tabindex="0" role="button" aria-pressed="false">
+            <div class="check"></div>
+            <div class="day">Domingo</div>
+            <div class="date">23 de agosto de 2026</div>
+          </div>
+        </div>
+
+        <button id="btn-confirm" disabled>Confirmar data</button>
+        <div class="status-msg" id="statusMsg"></div>
+      </div>
+
+      <div id="confirmed">
+        <div class="eyebrow">combinado!</div>
+        <h2 class="headline2">Anotado ✨</h2>
+        <p class="sub2" id="confirmedText"></p>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<script>
+  /* ---------- ambient floating hearts ---------- */
+  const heartsWrap = document.getElementById('hearts');
+  const heartChars = ['♥','❤'];
+  for(let i=0;i<12;i++){
+    const h = document.createElement('div');
+    h.className = 'heart';
+    h.textContent = heartChars[Math.floor(Math.random()*heartChars.length)];
+    h.style.left = Math.random()*100 + 'vw';
+    h.style.fontSize = (14 + Math.random()*18) + 'px';
+    h.style.animationDuration = (9 + Math.random()*10) + 's';
+    h.style.animationDelay = (Math.random()*10) + 's';
+    heartsWrap.appendChild(h);
+  }
+
+  /* ---------- fleeing "Não" button ---------- */
+  const btnNo = document.getElementById('btn-no');
+  const btnRow = document.getElementById('btnRow');
+  const MARGIN = 16;
+  const isTouch = matchMedia('(hover: none), (pointer: coarse)').matches;
+  let fleeing = false;
+
+  function activateFleeMode(){
+    if(fleeing) return;
+    fleeing = true;
+    const rect = btnNo.getBoundingClientRect();
+    btnNo.classList.add('fleeing');
+    btnNo.style.left = rect.left + 'px';
+    btnNo.style.top = rect.top + 'px';
+    btnNo.style.margin = '0';
+  }
+
+  function clamp(val, min, max){
+    return Math.max(min, Math.min(max, val));
+  }
+
+  function moveTo(x, y){
+    const w = btnNo.offsetWidth;
+    const h = btnNo.offsetHeight;
+    const maxX = window.innerWidth - w - MARGIN;
+    const maxY = window.innerHeight - h - MARGIN;
+    btnNo.style.left = clamp(x, MARGIN, maxX) + 'px';
+    btnNo.style.top = clamp(y, MARGIN, maxY) + 'px';
+  }
+
+  if(!isTouch){
+    document.addEventListener('mousemove', (e) => {
+      if(document.getElementById('screen1').classList.contains('hidden')) return;
+
+      const rect = btnNo.getBoundingClientRect();
+      const btnCx = rect.left + rect.width/2;
+      const btnCy = rect.top + rect.height/2;
+      const dx = btnCx - e.clientX;
+      const dy = btnCy - e.clientY;
+      const dist = Math.hypot(dx, dy);
+      const THRESHOLD = 130;
+
+      if(dist < THRESHOLD){
+        activateFleeMode();
+        const angle = Math.atan2(dy, dx) + (Math.random()-0.5)*0.5;
+        const runDist = 150 + Math.random()*90;
+        const newX = btnCx + Math.cos(angle) * runDist - rect.width/2;
+        const newY = btnCy + Math.sin(angle) * runDist - rect.height/2;
+        moveTo(newX, newY);
+      }
+    });
+  } else {
+    btnNo.addEventListener('click', (e) => {
+      e.preventDefault();
+      activateFleeMode();
+      const rect = btnNo.getBoundingClientRect();
+      const cx = rect.left + rect.width/2;
+      const cy = rect.top + rect.height/2;
+      const angle = Math.random() * Math.PI * 2;
+      const runDist = 140 + Math.random()*120;
+      const newX = cx + Math.cos(angle) * runDist - rect.width/2;
+      const newY = cy + Math.sin(angle) * runDist - rect.height/2;
+      moveTo(newX, newY);
+    });
+  }
+
+  window.addEventListener('resize', () => {
+    if(!fleeing) return;
+    const rect = btnNo.getBoundingClientRect();
+    moveTo(rect.left, rect.top);
+  });
+
+  /* ---------- Sim -> screen 2 ---------- */
+  document.getElementById('btn-yes').addEventListener('click', () => {
+    document.getElementById('screen1').classList.add('hidden');
+    document.getElementById('screen2').classList.remove('hidden');
+  });
+
+  /* ---------- date selection ---------- */
+  const tickets = document.querySelectorAll('.ticket');
+  const btnConfirm = document.getElementById('btn-confirm');
+  let selectedDate = null;
+  let selectedLabel = null;
+
+  function selectTicket(t){
+    tickets.forEach(x => { x.classList.remove('selected'); x.setAttribute('aria-pressed','false'); });
+    t.classList.add('selected');
+    t.setAttribute('aria-pressed','true');
+    selectedDate = t.dataset.date;
+    selectedLabel = t.dataset.label;
+    btnConfirm.disabled = false;
+  }
+
+  tickets.forEach(t => {
+    t.addEventListener('click', () => selectTicket(t));
+    t.addEventListener('keydown', (e) => {
+      if(e.key === 'Enter' || e.key === ' '){
+        e.preventDefault();
+        selectTicket(t);
+      }
+    });
+  });
+
+  /* ---------- confirm & send via Formspree ---------- */
+  // 1) Crie uma conta gratuita em https://formspree.io
+  // 2) Crie um novo formulário e copie o "Form ID"
+  // 3) Substitua YOUR_FORM_ID abaixo por esse ID
+  const FORMSPREE_ENDPOINT = 'https://formspree.io/f/mgawzvzj';
+
+  const statusMsg = document.getElementById('statusMsg');
+
+  btnConfirm.addEventListener('click', async () => {
+    if(!selectedDate) return;
+    btnConfirm.disabled = true;
+    btnConfirm.textContent = 'Enviando...';
+    statusMsg.textContent = '';
+    statusMsg.className = 'status-msg';
+
+    try{
+      const res = await fetch(FORMSPREE_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          resposta: 'Sim, ela aceitou!',
+          data_escolhida: selectedLabel,
+          local: 'Shopping Cidade Jardim'
+        })
+      });
+
+      if(res.ok){
+        showConfirmed();
+      } else {
+        throw new Error('Falha no envio');
+      }
+    } catch(err){
+      statusMsg.textContent = 'Não consegui enviar agora, mas pode confirmar comigo diretamente 💌';
+      statusMsg.classList.add('err');
+      btnConfirm.disabled = false;
+      btnConfirm.textContent = 'Confirmar data';
+    }
+  });
+
+  function showConfirmed(){
+    document.getElementById('pickStep').style.display = 'none';
+    const confirmed = document.getElementById('confirmed');
+    confirmed.style.display = 'block';
+    document.getElementById('confirmedText').textContent =
+      `Combinamos então: ${selectedLabel}, no Shopping Cidade Jardim. Mal posso esperar! 🤍`;
+  }
+</script>
+
+</body>
+</html>
